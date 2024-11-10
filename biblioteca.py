@@ -45,7 +45,7 @@ def menu():
                 nova_data_publicacao = input("Nova data de publicação (YYYY-MM-DD): ")
                 atualizar_livro(id_livro, novo_titulo, novo_autor, nova_editora, novo_genero, novo_preco, nova_qtde_estoque, nova_data_publicacao)
             case "4":
-                id_livro = int(input("Digite o ID do livro a ser deletado: "))
+                id_livro = int(input("Digite o ISNB do livro a ser deletado: "))
                 deletar_livro(id_livro)
             case "5":
                 nome = input("Nome do cliente: ")

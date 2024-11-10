@@ -55,14 +55,17 @@ def atualizar_livro(id_livro, novo_titulo, novo_autor, nova_editora, novo_genero
             cursor.close()
             connection.close()
 
-def deletar_livro(id_livro):
+def deletar_livro(isbn):
     try:
         connection = connect_to_db()
         cursor = connection.cursor()
-        query = "DELETE FROM Livro WHERE ID_Livro = %s"
-        cursor.execute(query, (id_livro,))
+        query = "DELETE FROM Livro WHERE ISBN = %s"
+        cursor.execute(query, (isbn,))
         connection.commit()
-        print("Livro deletado com sucesso!")
+        if cursor.rowcount > 0:
+            print("Livro deletado com sucesso!")
+        else:
+            print("Nenhum livro encontrado com o ISBN fornecido.")
     except Exception as e:
         print(f"Erro ao deletar livro: {e}")
     finally:
