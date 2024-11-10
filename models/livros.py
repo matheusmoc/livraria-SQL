@@ -24,7 +24,7 @@ def visualizar_livros():
     try:
         connection = connect_to_db()
         cursor = connection.cursor(dictionary=True)
-        query = "SELECT * FROM Livro"
+        query = "SELECT * FROM Livro ORDER BY ISBN DESC" 
         cursor.execute(query)
         livros = cursor.fetchall() 
         print(f"Livros encontrados: {livros}") 

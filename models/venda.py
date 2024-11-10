@@ -1,5 +1,9 @@
 from db_config import connect_to_db
 
+
+
+connection = connect_to_db()
+
 def fetch_book_price(cursor, isbn):
 
     query = "SELECT Preco FROM Livro WHERE ISBN = %s"
@@ -7,9 +11,8 @@ def fetch_book_price(cursor, isbn):
     result = cursor.fetchone()
     if result:
         return result[0]
-    else:
-        print(f"Erro: ISBN {isbn} não encontrado na base de dados.")
-        return None
+    print(f"Erro: ISBN {isbn} não encontrado na base de dados.")
+    return None
 
 
 def calculate_total_value(cursor, livros_vendidos):
@@ -39,16 +42,18 @@ def insert_sale(cursor, id_cliente, valor_total):
     return cursor.lastrowid
 
 def update_stock(cursor, isbn, qtde):
-
     query_check_stock = "SELECT Qtde_Estoque FROM Livro WHERE ISBN = %s"
     cursor.execute(query_check_stock, (isbn,))
     result = cursor.fetchone()
 
     if result:
         current_stock = result[0]
+        print(f"Current stock for ISBN {isbn}: {current_stock}")
         if current_stock >= qtde:
-            query_update_stock = "UPDATE Livro SET Qtde_Estoque = Qtde_Estoque - %s WHERE ISBN = %s"
+            query_update_stock = "UPDATE Livro SET Qtde_Estoque = Qtde_Estoque - %s + 1 WHERE ISBN = %s"
             cursor.execute(query_update_stock, (qtde, isbn))
+            connection.commit()
+            print(f"Updated stock for ISBN {isbn}: {current_stock - qtde}")
         else:
             print(f"Erro: Estoque insuficiente para o ISBN {isbn}.")
             return False
@@ -56,7 +61,6 @@ def update_stock(cursor, isbn, qtde):
         print(f"Erro: ISBN {isbn} não encontrado na base de dados.")
         return False
     return True
-
 
 def insert_sale_items(cursor, id_venda, livros_vendidos):
 
@@ -146,10 +150,6 @@ def historico_vendas(connection):
         cursor.execute(query)
         vendas = cursor.fetchall()
 
-        if not vendas:
-            print("Nenhuma venda registrada.")
-            return vendas
-
         for venda in vendas:
             id_venda, data_venda, valor_total, nome_cliente, livro_titulo, quantidade = venda
             print(f"\nVenda ID: {id_venda}")
@@ -159,7 +159,8 @@ def historico_vendas(connection):
             print(f"Livro Comprado: {livro_titulo}")
             print(f"Quantidade: {quantidade}")
 
+        return vendas
+    
     except Exception as e:
         print(f"Erro ao consultar o histórico de vendas: {e}")
     
-    return vendas
