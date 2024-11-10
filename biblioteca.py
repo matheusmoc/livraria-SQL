@@ -1,7 +1,7 @@
 from models.livros import adicionar_livro, visualizar_livros, atualizar_livro, deletar_livro
 from models.clientes import adicionar_cliente, visualizar_clientes
-from models.venda import registrar_venda
-from db_config import create_cliente_table, create_livro_table, connect_to_db
+from models.venda import registrar_venda, historico_vendas
+from db_config import create_cliente_table, create_livro_table, create_venda_table, create_item_venda_table, connect_to_db
 import random
 
 def menu():
@@ -9,6 +9,8 @@ def menu():
     if connection:
         create_livro_table(connection)
         create_cliente_table(connection)
+        create_venda_table(connection)
+        create_item_venda_table(connection)
 
     while True:
         print("\nSistema de Biblioteca")
@@ -18,7 +20,9 @@ def menu():
         print("4. Deletar Livro")
         print("5. Adicionar Cliente")
         print("6. Visualizar Clientes")
-        print("7. Sair")
+        print("7. Registrar Venda")
+        print("8. Ver Histórico de Vendas")
+        print("9. Sair")
         escolha = input("Escolha uma opção: ")
 
         match escolha:
@@ -52,23 +56,23 @@ def menu():
                 email = input("E-mail do cliente: ")
                 telefone = input("Telefone do cliente: ")
                 endereco = input("Endereço do cliente: ")
-                data_registro = input("Data de registro (YYYY-MM-DD): ")
-                adicionar_cliente(nome, email, telefone, endereco, data_registro)
+                adicionar_cliente(nome, email, telefone, endereco)
             case "6":
                 visualizar_clientes()
-            case "7": 
+            case "7":
                 id_cliente = int(input("Digite o ID do cliente: "))
                 livros_vendidos = []
                 while True:
-                    id_livro = int(input("Digite o ID do livro a ser comprado (0 para finalizar): "))
-                    if id_livro == 0:
+                    isbn = input("Digite o ISBN do livro a ser comprado (0 para finalizar): ")
+                    if isbn == "0":
                         break
                     qtde = int(input("Digite a quantidade: "))
-                    preco_unitario = float(input("Digite o preço unitário do livro: "))
-                    livros_vendidos.append({'ID_Livro': id_livro, 'Qtde': qtde, 'Preco_Unitario': preco_unitario})
-                
+                    livros_vendidos.append({'ISBN': isbn, 'Qtde': qtde})
+
                 registrar_venda(connection, id_cliente, livros_vendidos)
             case "8":
+                historico_vendas(connection) 
+            case "9":
                 print("Saindo do sistema.")
                 break
             case _:

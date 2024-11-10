@@ -57,3 +57,45 @@ def create_cliente_table(connection):
         print(f"Erro ao criar a tabela 'Cliente': {e}")
     finally:
         cursor.close()
+
+
+def create_venda_table(connection):
+    try:
+        cursor = connection.cursor()
+        create_table_query = '''
+            CREATE TABLE IF NOT EXISTS Venda (
+                ID_Venda INT AUTO_INCREMENT PRIMARY KEY,
+                Data_Venda DATETIME NOT NULL,
+                ID_Cliente INT NOT NULL,
+                Valor_Total DECIMAL(10, 2) NOT NULL,
+                FOREIGN KEY (ID_Cliente) REFERENCES Cliente(Id)
+            )
+        '''
+        cursor.execute(create_table_query)
+        print("Tabela 'Venda' verificada/criada com sucesso.")
+    except Exception as e:
+        print(f"Erro ao criar a tabela 'Venda': {e}")
+    finally:
+        cursor.close()
+    
+
+def create_item_venda_table(connection):
+    try:
+        cursor = connection.cursor()
+        create_table_query = '''
+            CREATE TABLE IF NOT EXISTS Item_Venda (
+                ID_Item_Venda INT AUTO_INCREMENT PRIMARY KEY,
+                ID_Venda INT NOT NULL,
+                ISBN_Livro VARCHAR(20) NOT NULL,
+                Qtde INT NOT NULL,
+                Preco_Unitario DECIMAL(5,2) NOT NULL,
+                FOREIGN KEY (ID_Venda) REFERENCES Venda(ID_Venda),
+                FOREIGN KEY (ISBN_Livro) REFERENCES livro(ISBN)
+            )
+        '''
+        cursor.execute(create_table_query)
+        print("Tabela 'Item_Venda' verificada/criada com sucesso.")
+    except Exception as e:
+        print(f"Erro ao criar a tabela 'Item_Venda': {e}")
+    finally:
+        cursor.close()

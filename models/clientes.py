@@ -1,9 +1,11 @@
 from db_config import connect_to_db
+from datetime import datetime
 
-def adicionar_cliente(nome, email, telefone, endereco, data_registro):
+def adicionar_cliente(nome, email, telefone, endereco):
     try:
         connection = connect_to_db()
         cursor = connection.cursor()
+        data_registro = datetime.now() 
         query = """
         INSERT INTO Cliente (Nome, Email, Telefone, Endereco, Data_Registro)
         VALUES (%s, %s, %s, %s, %s)
