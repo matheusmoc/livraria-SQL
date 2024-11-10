@@ -1,79 +1,114 @@
 from db_config import connect_to_db
 
+def fetch_book_price(cursor, isbn):
 
-def registrar_venda(connection, id_cliente, livros_vendidos):
-    try:
-        connection = connect_to_db()
-        cursor = connection.cursor()
-
-        valor_total = 0
-
-        for livro in livros_vendidos:
-            isbn = livro['ISBN']
-            qtde = livro['Qtde']
-            
-            print(f"Consultando ISBN: {isbn}") 
-            
-            # Consulta para obter o preço do livro diretamente pelo ISBN
-            query_preco = "SELECT Preco FROM Livro WHERE ISBN = %s"
-            cursor.execute(query_preco, (isbn,))
-            result = cursor.fetchone()
-            
-            if result:
-                preco_unitario = result[0]
-                valor_total += qtde * preco_unitario
-            else:
-                print(f"Erro: ISBN {isbn} não encontrado na base de dados.")
-                return  
-
-        query_venda = """
-        INSERT INTO Venda (Data_Venda, ID_Cliente, Valor_Total)
-        VALUES (NOW(), %s, %s)
-        """
-        cursor.execute(query_venda, (id_cliente, valor_total))
-        connection.commit()
-
-        id_venda = cursor.lastrowid
-
-        for livro in livros_vendidos:
-            isbn = livro['ISBN']
-            qtde = livro['Qtde']
+    query = "SELECT Preco FROM Livro WHERE ISBN = %s"
+    cursor.execute(query, (isbn,))
+    result = cursor.fetchone()
+    if result:
+        return result[0]
+    else:
+        print(f"Erro: ISBN {isbn} não encontrado na base de dados.")
+        return None
 
 
-            query_buscar_preco = "SELECT Preco FROM Livro WHERE ISBN = %s"
-            cursor.execute(query_buscar_preco, (isbn,))
-            result = cursor.fetchone()
+def calculate_total_value(cursor, livros_vendidos):
 
-            if result:
-                preco_unitario = result[0]
+    valor_total = 0
+    for livro in livros_vendidos:
+        isbn = livro['ISBN']
+        qtde = livro['Qtde']
+        
+        print(f"Consultando ISBN: {isbn}") 
+        preco_unitario = fetch_book_price(cursor, isbn)
+        if preco_unitario is not None:
+            valor_total += qtde * preco_unitario
+        else:
+            print(f"Erro: ISBN {isbn} não encontrado.")
+            return None
+    return valor_total
 
-                query_item_venda = """
+
+def insert_sale(cursor, id_cliente, valor_total):
+
+    query = """
+    INSERT INTO Venda (Data_Venda, ID_Cliente, Valor_Total)
+    VALUES (NOW(), %s, %s)
+    """
+    cursor.execute(query, (id_cliente, valor_total))
+    return cursor.lastrowid
+
+def update_stock(cursor, isbn, qtde):
+
+    query_check_stock = "SELECT Qtde_Estoque FROM Livro WHERE ISBN = %s"
+    cursor.execute(query_check_stock, (isbn,))
+    result = cursor.fetchone()
+
+    if result:
+        current_stock = result[0]
+        if current_stock >= qtde:
+            query_update_stock = "UPDATE Livro SET Qtde_Estoque = Qtde_Estoque - %s WHERE ISBN = %s"
+            cursor.execute(query_update_stock, (qtde, isbn))
+        else:
+            print(f"Erro: Estoque insuficiente para o ISBN {isbn}.")
+            return False
+    else:
+        print(f"Erro: ISBN {isbn} não encontrado na base de dados.")
+        return False
+    return True
+
+
+def insert_sale_items(cursor, id_venda, livros_vendidos):
+
+    for livro in livros_vendidos:
+        isbn = livro['ISBN']
+        qtde = livro['Qtde']
+        
+        preco_unitario = fetch_book_price(cursor, isbn)
+        if preco_unitario is not None:
+            if update_stock(cursor, isbn, qtde):  
+                query = """
                 INSERT INTO Item_Venda (ID_Venda, ISBN_Livro, Qtde, Preco_Unitario)
                 VALUES (%s, %s, %s, %s)
                 """
-                cursor.execute(query_item_venda, (id_venda, isbn, qtde, preco_unitario))
-                connection.commit()
+                cursor.execute(query, (id_venda, isbn, qtde, preco_unitario))
             else:
-                print(f"Erro: ISBN {isbn} não encontrado na base de dados.")
+                print(f"Erro: Não foi possível registrar a venda para o ISBN {isbn} devido a estoque insuficiente.")
+        else:
+            print(f"Erro: ISBN {isbn} não encontrado na base de dados.")
 
+
+def registrar_venda(connection, id_cliente, livros_vendidos):
+    connection = connect_to_db()
+    cursor = connection.cursor()
+    try:
+        cursor = connection.cursor()
+        valor_total = calculate_total_value(cursor, livros_vendidos)
+        
+        if valor_total is None:
+            return  
+
+        id_venda = insert_sale(cursor, id_cliente, valor_total)
+        insert_sale_items(cursor, id_venda, livros_vendidos)
+        
+        connection.commit()
         print("Venda registrada com sucesso!")
 
     except Exception as e:
         print(f"Erro ao registrar venda: {e}")
+        connection.rollback()
     finally:
         if connection.is_connected():
             cursor.close()
             connection.close()
 
-
 def historico_vendas(connection):
+    # As letras aleatorias são ALIAS
+    # No caso, ao invés de escrever Venda.ID_Venda, Venda.Data_Venda, Venda.Valor_Total, e Cliente.Nome, 
+    # você usa v.ID_Venda, v.Data_Venda, v.Valor_Total, e c.Nome respectivamente. 
+
     try:
         cursor = connection.cursor()
-        
-        # As letras aleatorias são ALIAS
-        # No caso, ao invés de escrever Venda.ID_Venda, Venda.Data_Venda, Venda.Valor_Total, e Cliente.Nome, 
-        # você usa v.ID_Venda, v.Data_Venda, v.Valor_Total, e c.Nome respectivamente. 
-
         query = """
         SELECT v.ID_Venda, v.Data_Venda, v.Valor_Total, c.Nome 
         FROM Venda v
@@ -93,7 +128,7 @@ def historico_vendas(connection):
             print(f"Data da Venda: {data_venda}")
             print(f"Cliente: {nome_cliente}")
             print(f"Valor Total: R${valor_total:.2f}")
-        
+
     except Exception as e:
         print(f"Erro ao consultar o histórico de vendas: {e}")
     finally:
