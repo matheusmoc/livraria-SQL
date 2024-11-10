@@ -50,7 +50,7 @@ def update_stock(cursor, isbn, qtde):
         current_stock = result[0]
         print(f"Current stock for ISBN {isbn}: {current_stock}")
         if current_stock >= qtde:
-            query_update_stock = "UPDATE Livro SET Qtde_Estoque = Qtde_Estoque - %s + 1 WHERE ISBN = %s"
+            query_update_stock = "UPDATE Livro SET Qtde_Estoque = Qtde_Estoque - %s WHERE ISBN = %s"
             cursor.execute(query_update_stock, (qtde, isbn))
             connection.commit()
             print(f"Updated stock for ISBN {isbn}: {current_stock - qtde}")
