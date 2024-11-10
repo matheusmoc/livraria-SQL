@@ -1,4 +1,4 @@
-from db_config import connect_to_db
+from db_config import connect_to_db, create_trigger_stock
 
 def fetch_book_price(cursor, isbn):
 
@@ -101,6 +101,32 @@ def registrar_venda(connection, id_cliente, livros_vendidos):
         if connection.is_connected():
             cursor.close()
             connection.close()
+
+
+# def registrar_venda(connection, id_cliente, livros_vendidos):
+#     connection = connect_to_db()
+#     cursor = connection.cursor()
+    
+#     create_trigger_stock(cursor)
+    
+#     try:
+#         valor_total = calculate_total_value(cursor, livros_vendidos)
+#         if valor_total is None:
+#             return  
+
+#         id_venda = insert_sale(cursor, id_cliente, valor_total)
+#         insert_sale_items(cursor, id_venda, livros_vendidos)
+        
+#         connection.commit()
+#         print("Venda registrada com sucesso!")
+
+#     except Exception as e:
+#         print(f"Erro ao registrar venda: {e}")
+#         connection.rollback()
+#     finally:
+#         if connection.is_connected():
+#             cursor.close()
+#             connection.close()
 
 def historico_vendas(connection):
     # As letras aleatorias são ALIAS
