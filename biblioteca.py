@@ -103,6 +103,76 @@ def visualizar_livros_gui():
         separator = tk.Label(livro_frame, text="-"*40)
         separator.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 
+def atualizar_livro_gui():
+    def salvar_atualizacao():
+        isbn = entry_isbn.get()
+        novo_titulo = entry_titulo.get()
+        novo_autor = entry_autor.get()
+        nova_editora = entry_editora.get()
+        novo_genero = entry_genero.get()
+        novo_preco = float(entry_preco.get())
+        nova_qtde_estoque = int(entry_qtde_estoque.get())
+        nova_data_publicacao = entry_data_publicacao.get()
+
+        atualizar_livro(isbn, novo_titulo, novo_autor, nova_editora, novo_genero, novo_preco, nova_qtde_estoque, nova_data_publicacao)
+        messagebox.showinfo("Sucesso", "Livro atualizado com sucesso!")
+        atualizar_livro_window.destroy()
+
+    atualizar_livro_window = tk.Toplevel()
+    atualizar_livro_window.title("Atualizar Livro")
+    atualizar_livro_window.geometry("400x300")
+
+    tk.Label(atualizar_livro_window, text="ISBN").grid(row=0, column=0, sticky="w", padx=10, pady=5)
+    entry_isbn = tk.Entry(atualizar_livro_window)
+    entry_isbn.grid(row=0, column=1, padx=10, pady=5)
+
+    tk.Label(atualizar_livro_window, text="Título").grid(row=1, column=0, sticky="w", padx=10, pady=5)
+    entry_titulo = tk.Entry(atualizar_livro_window)
+    entry_titulo.grid(row=1, column=1, padx=10, pady=5)
+
+    tk.Label(atualizar_livro_window, text="Autor").grid(row=2, column=0, sticky="w", padx=10, pady=5)
+    entry_autor = tk.Entry(atualizar_livro_window)
+    entry_autor.grid(row=2, column=1, padx=10, pady=5)
+
+    tk.Label(atualizar_livro_window, text="Editora").grid(row=3, column=0, sticky="w", padx=10, pady=5)
+    entry_editora = tk.Entry(atualizar_livro_window)
+    entry_editora.grid(row=3, column=1, padx=10, pady=5)
+
+    tk.Label(atualizar_livro_window, text="Gênero").grid(row=4, column=0, sticky="w", padx=10, pady=5)
+    entry_genero = tk.Entry(atualizar_livro_window)
+    entry_genero.grid(row=4, column=1, padx=10, pady=5)
+
+    tk.Label(atualizar_livro_window, text="Preço").grid(row=5, column=0, sticky="w", padx=10, pady=5)
+    entry_preco = tk.Entry(atualizar_livro_window)
+    entry_preco.grid(row=5, column=1, padx=10, pady=5)
+
+    tk.Label(atualizar_livro_window, text="Quantidade em Estoque").grid(row=6, column=0, sticky="w", padx=10, pady=5)
+    entry_qtde_estoque = tk.Entry(atualizar_livro_window)
+    entry_qtde_estoque.grid(row=6, column=1, padx=10, pady=5)
+
+    tk.Label(atualizar_livro_window, text="Data de Publicação (YYYY-MM-DD)").grid(row=7, column=0, sticky="w", padx=10, pady=5)
+    entry_data_publicacao = tk.Entry(atualizar_livro_window)
+    entry_data_publicacao.grid(row=7, column=1, padx=10, pady=5)
+    
+    ttk.Button(atualizar_livro_window, text="Salvar", command=salvar_atualizacao).grid(row=8, column=0, columnspan=2, pady=15)
+
+def deletar_livro_gui():
+    def excluir_livro():
+        isbn = entry_isbn.get()
+
+        deletar_livro(isbn)
+        messagebox.showinfo("Sucesso", "Livro deletado com sucesso!")
+        deletar_livro_window.destroy()
+
+    deletar_livro_window = tk.Toplevel()
+    deletar_livro_window.title("Deletar Livro")
+    deletar_livro_window.geometry("400x200")
+
+    tk.Label(deletar_livro_window, text="ISBN do Livro").grid(row=0, column=0, sticky="w", padx=10, pady=5)
+    entry_isbn = tk.Entry(deletar_livro_window)
+    entry_isbn.grid(row=0, column=1, padx=10, pady=5)
+
+    ttk.Button(deletar_livro_window, text="Excluir", command=excluir_livro).grid(row=1, column=0, columnspan=2, pady=15)
 
 def adicionar_cliente_gui():
     def salvar_cliente():
@@ -293,6 +363,8 @@ def main_menu():
     ttk.Label(root, text="Livraria", font=('Arial', 16)).pack(pady=10)
     ttk.Button(root, text="Adicionar Livro", command=adicionar_livro_gui).pack(pady=10, fill="x")
     ttk.Button(root, text="Visualizar Livros", command=visualizar_livros_gui).pack(pady=10, fill="x")
+    ttk.Button(root, text="Atualizar Livros", command=atualizar_livro_gui).pack(pady=10, fill="x")
+    ttk.Button(root, text="Deletar Livros", command=deletar_livro_gui).pack(pady=10, fill="x")
     ttk.Button(root, text="Adicionar Cliente", command=adicionar_cliente_gui).pack(pady=10, fill="x")
     ttk.Button(root, text="Visualizar Clientes", command=visualizar_clientes_gui).pack(pady=10, fill="x")
     ttk.Button(root, text="Registrar Venda", command=lambda: registrar_venda_gui(connection)).pack(pady=10, fill="x")
