@@ -32,7 +32,7 @@ def adicionar_livro_gui():
 
     adicionar_livro_window = tk.Toplevel()
     adicionar_livro_window.title("Adicionar Livro")
-    adicionar_livro_window.geometry("1920x1080")
+    adicionar_livro_window.geometry("400x300")
 
     tk.Label(adicionar_livro_window, text="Título").grid(row=0, column=0, sticky="w", padx=10, pady=5)
     entry_titulo = tk.Entry(adicionar_livro_window)
@@ -117,7 +117,7 @@ def adicionar_cliente_gui():
 
     adicionar_cliente_window = tk.Toplevel()
     adicionar_cliente_window.title("Adicionar Cliente")
-    adicionar_cliente_window.geometry("1920x1080")
+    adicionar_cliente_window.geometry("400x300")
 
     tk.Label(adicionar_cliente_window, text="Nome").grid(row=0, column=0, sticky="w", padx=10, pady=5)
     entry_nome = tk.Entry(adicionar_cliente_window)
@@ -180,13 +180,10 @@ def visualizar_clientes_gui():
 
 def registrar_venda_gui(connection):
     def salvar_venda():
-        # Retrieve selected customer's ID
         selected_customer = combo_clientes.get()
         if not selected_customer:
             messagebox.showerror("Erro", "Selecione um cliente!")
             return
-
-        # Get the customer ID from the selection
         id_cliente = clientes_dict.get(selected_customer)
         
         if not id_cliente:
@@ -214,38 +211,30 @@ def registrar_venda_gui(connection):
         else:
             messagebox.showwarning("Atenção", "Nenhum livro foi registrado.")
 
-    # Fetch customer names and IDs from the database
+
     cursor = connection.cursor()
     cursor.execute("SELECT Id, Nome FROM Cliente")
     clientes = cursor.fetchall()
     
-    # Create a dictionary of customer names to their IDs for easy lookup
     clientes_dict = {nome: id_cliente for id_cliente, nome in clientes}
 
-    # Create the GUI
     registrar_venda_window = tk.Toplevel()
     registrar_venda_window.title("Registrar Venda")
     registrar_venda_window.geometry("400x300")
 
-    # Customer selection
     tk.Label(registrar_venda_window, text="Selecione o Cliente").grid(row=0, column=0, sticky="w", padx=10, pady=5)
     combo_clientes = ttk.Combobox(registrar_venda_window, values=list(clientes_dict.keys()), state="readonly")
     combo_clientes.grid(row=0, column=1, padx=10, pady=5)
 
-    # ISBN input
     tk.Label(registrar_venda_window, text="ISBN do Livro").grid(row=1, column=0, sticky="w", padx=10, pady=5)
     entry_isbn = tk.Entry(registrar_venda_window)
     entry_isbn.grid(row=1, column=1, padx=10, pady=5)
 
-    # Quantity input
     tk.Label(registrar_venda_window, text="Quantidade").grid(row=2, column=0, sticky="w", padx=10, pady=5)
     entry_qtde = tk.Entry(registrar_venda_window)
     entry_qtde.grid(row=2, column=1, padx=10, pady=5)
 
-    # Register button
     ttk.Button(registrar_venda_window, text="Registrar Venda", command=salvar_venda).grid(row=3, column=0, columnspan=2, pady=15)
-
-    # Instruction label
     tk.Label(registrar_venda_window, text="Digite ISBN do livro e Quantidade. Digite 0 para finalizar.").grid(row=4, column=0, columnspan=2, pady=10)
 
 def historico_vendas_gui(connection):
