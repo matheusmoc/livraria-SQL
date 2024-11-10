@@ -1,4 +1,4 @@
-from db_config import connect_to_db, create_trigger_stock
+from db_config import connect_to_db
 
 def fetch_book_price(cursor, isbn):
 
@@ -79,8 +79,6 @@ def insert_sale_items(cursor, id_venda, livros_vendidos):
 
 
 def registrar_venda(connection, id_cliente, livros_vendidos):
-    connection = connect_to_db()
-    cursor = connection.cursor()
     try:
         cursor = connection.cursor()
         valor_total = calculate_total_value(cursor, livros_vendidos)
@@ -128,36 +126,40 @@ def registrar_venda(connection, id_cliente, livros_vendidos):
 #             cursor.close()
 #             connection.close()
 
-def historico_vendas(connection):
-    # As letras aleatorias são ALIAS
-    # No caso, ao invés de escrever Venda.ID_Venda, Venda.Data_Venda, Venda.Valor_Total, e Cliente.Nome, 
-    # você usa v.ID_Venda, v.Data_Venda, v.Valor_Total, e c.Nome respectivamente. 
 
+
+def historico_vendas(connection):
+    """
+    Retrieves the sales history along with the books purchased in each sale.
+    """
+    vendas = []
     try:
         cursor = connection.cursor()
         query = """
-        SELECT v.ID_Venda, v.Data_Venda, v.Valor_Total, c.Nome 
+        SELECT v.ID_Venda, v.Data_Venda, v.Valor_Total, c.Nome, l.Titulo, iv.Qtde
         FROM Venda v
         JOIN Cliente c ON v.ID_Cliente = c.Id
+        JOIN Item_Venda iv ON v.ID_Venda = iv.ID_Venda
+        JOIN livro l ON iv.ISBN_Livro = l.ISBN
         ORDER BY v.Data_Venda DESC
         """
         cursor.execute(query)
         vendas = cursor.fetchall()
-        
+
         if not vendas:
             print("Nenhuma venda registrada.")
-            return
+            return vendas
 
         for venda in vendas:
-            id_venda, data_venda, valor_total, nome_cliente = venda
+            id_venda, data_venda, valor_total, nome_cliente, livro_titulo, quantidade = venda
             print(f"\nVenda ID: {id_venda}")
             print(f"Data da Venda: {data_venda}")
             print(f"Cliente: {nome_cliente}")
             print(f"Valor Total: R${valor_total:.2f}")
+            print(f"Livro Comprado: {livro_titulo}")
+            print(f"Quantidade: {quantidade}")
 
     except Exception as e:
         print(f"Erro ao consultar o histórico de vendas: {e}")
-    finally:
-        if connection.is_connected():
-            cursor.close()
-            connection.close()
+    
+    return vendas

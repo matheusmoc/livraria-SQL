@@ -23,14 +23,15 @@ def adicionar_livro(isbn, titulo, autor, editora, genero, preco, qtde_estoque, d
 def visualizar_livros():
     try:
         connection = connect_to_db()
-        cursor = connection.cursor()
+        cursor = connection.cursor(dictionary=True)
         query = "SELECT * FROM Livro"
         cursor.execute(query)
-        livros = cursor.fetchall()
-        for livro in livros:
-            print(livro)
+        livros = cursor.fetchall() 
+        print(f"Livros encontrados: {livros}") 
+        return livros 
     except Exception as e:
         print(f"Erro ao visualizar livros: {e}")
+        return None 
     finally:
         if connection.is_connected():
             cursor.close()

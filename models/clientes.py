@@ -23,14 +23,22 @@ def adicionar_cliente(nome, email, telefone, endereco):
 def visualizar_clientes():
     try:
         connection = connect_to_db()
-        cursor = connection.cursor()
+        cursor = connection.cursor(dictionary=True)
         query = "SELECT * FROM Cliente"
         cursor.execute(query)
-        clientes = cursor.fetchall()
-        for cliente in clientes:
-            print(cliente)
+        clientes = cursor.fetchall()  
+        
+        print(clientes)
+
+        if not clientes:
+            print("Nenhum cliente encontrado.")
+            return None
+        return clientes  
+
     except Exception as e:
         print(f"Erro ao visualizar clientes: {e}")
+        return None 
+
     finally:
         if connection.is_connected():
             cursor.close()

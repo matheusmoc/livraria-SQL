@@ -101,33 +101,33 @@ def create_item_venda_table(connection):
         cursor.close()
 
 
-def create_trigger_stock(cursor):
-    trigger_sql = """
-    CREATE TRIGGER reduzir_estoque
-    AFTER INSERT ON Item_Venda
-    FOR EACH ROW
-    BEGIN
-        DECLARE current_stock INT;
+# def create_trigger_stock(cursor):
+#     trigger_sql = """
+#     CREATE TRIGGER reduzir_estoque
+#     AFTER INSERT ON Item_Venda
+#     FOR EACH ROW
+#     BEGIN
+#         DECLARE current_stock INT;
 
-        -- Obtém o estoque atual do livro
-        SELECT Qtde_Estoque INTO current_stock
-        FROM Livro
-        WHERE ISBN = NEW.ISBN_Livro;
+#         -- Obtém o estoque atual do livro
+#         SELECT Qtde_Estoque INTO current_stock
+#         FROM Livro
+#         WHERE ISBN = NEW.ISBN_Livro;
 
-        -- Verifica se o estoque é suficiente
-        IF current_stock >= NEW.Qtde THEN
-            -- Atualiza a quantidade do estoque
-            UPDATE Livro
-            SET Qtde_Estoque = Qtde_Estoque - NEW.Qtde
-            WHERE ISBN = NEW.ISBN_Livro;
-        ELSE
-            -- Caso não tenha estoque suficiente, pode lançar um erro
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Estoque insuficiente para a venda';
-        END IF;
-    END
-    """
-    try:
-        cursor.execute(trigger_sql)
-        print("Trigger 'reduzir_estoque' criado com sucesso.")
-    except Exception as e:
-        print(f"Erro ao criar trigger: {e}")
+#         -- Verifica se o estoque é suficiente
+#         IF current_stock >= NEW.Qtde THEN
+#             -- Atualiza a quantidade do estoque
+#             UPDATE Livro
+#             SET Qtde_Estoque = Qtde_Estoque - NEW.Qtde
+#             WHERE ISBN = NEW.ISBN_Livro;
+#         ELSE
+#             -- Caso não tenha estoque suficiente, pode lançar um erro
+#             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Estoque insuficiente para a venda';
+#         END IF;
+#     END
+#     """
+#     try:
+#         cursor.execute(trigger_sql)
+#         print("Trigger 'reduzir_estoque' criado com sucesso.")
+#     except Exception as e:
+#         print(f"Erro ao criar trigger: {e}")

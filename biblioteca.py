@@ -1,82 +1,302 @@
+import tkinter as tk
+from tkinter import messagebox, ttk
 from models.livros import adicionar_livro, visualizar_livros, atualizar_livro, deletar_livro
 from models.clientes import adicionar_cliente, visualizar_clientes
 from models.venda import registrar_venda, historico_vendas
 from db_config import create_cliente_table, create_livro_table, create_venda_table, create_item_venda_table, connect_to_db
 import random
 
-def menu():
-    connection = connect_to_db()
-    if connection:
-        create_livro_table(connection)
-        create_cliente_table(connection)
-        create_venda_table(connection)
-        create_item_venda_table(connection)
+connection = connect_to_db()
 
-    while True:
-        print("\nSistema de Biblioteca")
-        print("1. Adicionar Livro")
-        print("2. Visualizar Livros")
-        print("3. Atualizar Livro")
-        print("4. Deletar Livro")
-        print("5. Adicionar Cliente")
-        print("6. Visualizar Clientes")
-        print("7. Registrar Venda")
-        print("8. Ver Histórico de Vendas")
-        print("9. Sair")
-        escolha = input("Escolha uma opção: ")
+def configure_style():
+    style = ttk.Style()
+    style.configure('TButton', font=('Arial', 12), padding=10, width=25)
+    style.configure('TLabel', font=('Arial', 12))
+    style.configure('TEntry', font=('Arial', 12), padding=5)
 
-        match escolha:
-            case "1":
-                isbn = random.randint(1000000000000, 9999999999999)
-                titulo = input("Digite o título do livro: ")
-                autor = input("Digite o autor do livro: ")
-                editora = input("Digite a editora do livro: ")
-                genero = input("Digite o gênero do livro: ")
-                preco = float(input("Digite o preço do livro: "))
-                qtde_estoque = int(input("Digite a quantidade em estoque: "))
-                data_publicacao = input("Digite a data de publicação (YYYY-MM-DD): ")
-                adicionar_livro(isbn, titulo, autor, editora, genero, preco, qtde_estoque, data_publicacao)
-            case "2":
-                visualizar_livros()
-            case "3":
-                id_livro = int(input("Digite o ISNB do livro a ser deletado: "))
-                novo_titulo = input("Novo título: ")
-                novo_autor = input("Novo autor: ")
-                nova_editora = input("Nova editora: ")
-                novo_genero = input("Novo gênero: ")
-                novo_preco = float(input("Novo preço: "))
-                nova_qtde_estoque = int(input("Nova quantidade: "))
-                nova_data_publicacao = input("Nova data de publicação (YYYY-MM-DD): ")
-                atualizar_livro(id_livro, novo_titulo, novo_autor, nova_editora, novo_genero, novo_preco, nova_qtde_estoque, nova_data_publicacao)
-            case "4":
-                id_livro = int(input("Digite o ISNB do livro a ser deletado: "))
-                deletar_livro(id_livro)
-            case "5":
-                nome = input("Nome do cliente: ")
-                email = input("E-mail do cliente: ")
-                telefone = input("Telefone do cliente: ")
-                endereco = input("Endereço do cliente: ")
-                adicionar_cliente(nome, email, telefone, endereco)
-            case "6":
-                visualizar_clientes()
-            case "7":
-                id_cliente = int(input("Digite o ID do cliente: "))
-                livros_vendidos = []
-                while True:
-                    isbn = input("Digite o ISBN do livro a ser comprado (0 para finalizar): ")
-                    if isbn == "0":
-                        break
-                    qtde = int(input("Digite a quantidade: "))
-                    livros_vendidos.append({'ISBN': isbn, 'Qtde': qtde})
 
-                registrar_venda(connection, id_cliente, livros_vendidos)
-            case "8":
-                historico_vendas(connection) 
-            case "9":
-                print("Saindo do sistema.")
+def adicionar_livro_gui():
+    def salvar_livro():
+        isbn = random.randint(1000000000000, 9999999999999)
+        titulo = entry_titulo.get()
+        autor = entry_autor.get()
+        editora = entry_editora.get()
+        genero = entry_genero.get()
+        preco = float(entry_preco.get())
+        qtde_estoque = int(entry_qtde_estoque.get())
+        data_publicacao = entry_data_publicacao.get()
+
+        adicionar_livro(isbn, titulo, autor, editora, genero, preco, qtde_estoque, data_publicacao)
+        messagebox.showinfo("Sucesso", "Livro adicionado com sucesso!")
+        adicionar_livro_window.destroy()
+
+    adicionar_livro_window = tk.Toplevel()
+    adicionar_livro_window.title("Adicionar Livro")
+    adicionar_livro_window.geometry("1920x1080")
+
+    tk.Label(adicionar_livro_window, text="Título").grid(row=0, column=0, sticky="w", padx=10, pady=5)
+    entry_titulo = tk.Entry(adicionar_livro_window)
+    entry_titulo.grid(row=0, column=1, padx=10, pady=5)
+
+    tk.Label(adicionar_livro_window, text="Autor").grid(row=1, column=0, sticky="w", padx=10, pady=5)
+    entry_autor = tk.Entry(adicionar_livro_window)
+    entry_autor.grid(row=1, column=1, padx=10, pady=5)
+
+    tk.Label(adicionar_livro_window, text="Editora").grid(row=2, column=0, sticky="w", padx=10, pady=5)
+    entry_editora = tk.Entry(adicionar_livro_window)
+    entry_editora.grid(row=2, column=1, padx=10, pady=5)
+
+    tk.Label(adicionar_livro_window, text="Gênero").grid(row=3, column=0, sticky="w", padx=10, pady=5)
+    entry_genero = tk.Entry(adicionar_livro_window)
+    entry_genero.grid(row=3, column=1, padx=10, pady=5)
+
+    tk.Label(adicionar_livro_window, text="Preço").grid(row=4, column=0, sticky="w", padx=10, pady=5)
+    entry_preco = tk.Entry(adicionar_livro_window)
+    entry_preco.grid(row=4, column=1, padx=10, pady=5)
+
+    tk.Label(adicionar_livro_window, text="Quantidade em Estoque").grid(row=5, column=0, sticky="w", padx=10, pady=5)
+    entry_qtde_estoque = tk.Entry(adicionar_livro_window)
+    entry_qtde_estoque.grid(row=5, column=1, padx=10, pady=5)
+
+    tk.Label(adicionar_livro_window, text="Data de Publicação (YYYY-MM-DD)").grid(row=6, column=0, sticky="w", padx=10, pady=5)
+    entry_data_publicacao = tk.Entry(adicionar_livro_window)
+    entry_data_publicacao.grid(row=6, column=1, padx=10, pady=5)
+
+    ttk.Button(adicionar_livro_window, text="Salvar", command=salvar_livro).grid(row=7, column=0, columnspan=2, pady=15)
+
+
+def visualizar_livros_gui():
+    livros = visualizar_livros() 
+    if livros is None:
+        print("Nenhum livro encontrado.")
+        return
+    
+    livros_window = tk.Toplevel()
+    livros_window.title("Livros")
+    livros_window.geometry("600x400")
+
+    canvas = tk.Canvas(livros_window)
+    canvas.grid(row=0, column=0, sticky="nsew")
+
+    scrollbar = tk.Scrollbar(livros_window, orient="vertical", command=canvas.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
+
+    canvas.configure(yscrollcommand=scrollbar.set)
+    frame = tk.Frame(canvas)
+    canvas.create_window((0, 0), window=frame, anchor="nw")
+
+    def on_frame_configure(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+
+    frame.bind("<Configure>", on_frame_configure)
+
+    for index, livro in enumerate(livros):
+        livro_frame = tk.Frame(frame)
+        livro_frame.grid(row=index, column=0, padx=10, pady=10, sticky="w")
+        
+        tk.Label(livro_frame, text=f"Título: {livro['Titulo']}").grid(row=0, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(livro_frame, text=f"Autor: {livro['Autor']}").grid(row=1, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(livro_frame, text=f"ISBN: {livro['ISBN']}").grid(row=2, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(livro_frame, text=f"Preço: R${livro['Preco']}").grid(row=3, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(livro_frame, text=f"Quantidade: {livro['Qtde_Estoque']}").grid(row=4, column=0, sticky="w", padx=10, pady=5)
+
+        separator = tk.Label(livro_frame, text="-"*40)
+        separator.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+
+
+def adicionar_cliente_gui():
+    def salvar_cliente():
+        nome = entry_nome.get()
+        email = entry_email.get()
+        telefone = entry_telefone.get()
+        endereco = entry_endereco.get()
+
+        adicionar_cliente(nome, email, telefone, endereco)
+        messagebox.showinfo("Sucesso", "Cliente adicionado com sucesso!")
+        adicionar_cliente_window.destroy()
+
+    adicionar_cliente_window = tk.Toplevel()
+    adicionar_cliente_window.title("Adicionar Cliente")
+    adicionar_cliente_window.geometry("1920x1080")
+
+    tk.Label(adicionar_cliente_window, text="Nome").grid(row=0, column=0, sticky="w", padx=10, pady=5)
+    entry_nome = tk.Entry(adicionar_cliente_window)
+    entry_nome.grid(row=0, column=1, padx=10, pady=5)
+
+    tk.Label(adicionar_cliente_window, text="E-mail").grid(row=1, column=0, sticky="w", padx=10, pady=5)
+    entry_email = tk.Entry(adicionar_cliente_window)
+    entry_email.grid(row=1, column=1, padx=10, pady=5)
+
+    tk.Label(adicionar_cliente_window, text="Telefone").grid(row=2, column=0, sticky="w", padx=10, pady=5)
+    entry_telefone = tk.Entry(adicionar_cliente_window)
+    entry_telefone.grid(row=2, column=1, padx=10, pady=5)
+
+    tk.Label(adicionar_cliente_window, text="Endereço").grid(row=3, column=0, sticky="w", padx=10, pady=5)
+    entry_endereco = tk.Entry(adicionar_cliente_window)
+    entry_endereco.grid(row=3, column=1, padx=10, pady=5)
+
+    ttk.Button(adicionar_cliente_window, text="Salvar", command=salvar_cliente).grid(row=4, column=0, columnspan=2, pady=15)
+
+def visualizar_clientes_gui():
+    clientes = visualizar_clientes()
+    
+    if clientes is None:
+        print("Nenhum cliente encontrado.")
+        return
+    
+    clientes_window = tk.Toplevel()
+    clientes_window.title("Clientes")
+    clientes_window.geometry("400x300")
+    
+    canvas = tk.Canvas(clientes_window)
+    canvas.grid(row=0, column=0, sticky="nsew")
+
+    scrollbar = tk.Scrollbar(clientes_window, orient="vertical", command=canvas.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
+    
+    canvas.configure(yscrollcommand=scrollbar.set)
+    frame = tk.Frame(canvas)
+    canvas.create_window((0, 0), window=frame, anchor="nw")
+
+    for index, cliente in enumerate(clientes):
+        cliente_frame = tk.Frame(frame)
+        cliente_frame.grid(row=index, column=0, padx=10, pady=10, sticky="w")
+
+        title_label = tk.Label(cliente_frame, text=f"Cliente {index + 1}")
+        title_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
+        
+        tk.Label(cliente_frame, text=f"Nome: {cliente['Nome']}").grid(row=1, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(cliente_frame, text=f"Email: {cliente['Email']}").grid(row=2, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(cliente_frame, text=f"Telefone: {cliente['Telefone']}").grid(row=3, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(cliente_frame, text=f"Endereço: {cliente['Endereco']}").grid(row=4, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(cliente_frame, text=f"Data de Registro: {cliente['Data_Registro']}").grid(row=5, column=0, sticky="w", padx=10, pady=5)
+        
+        separator = tk.Label(cliente_frame, text="-"*40)
+        separator.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+
+    frame.update_idletasks()
+    canvas.config(scrollregion=canvas.bbox("all"))
+
+
+def registrar_venda_gui(connection):
+    def salvar_venda():
+        try:
+            id_cliente = int(entry_id_cliente.get())
+        except ValueError:
+            messagebox.showerror("Erro", "ID do cliente inválido!")
+            return
+        
+        livros_vendidos = []  
+        while True:
+            isbn = entry_isbn.get()
+            if isbn == "0":
                 break
-            case _:
-                print("Opção inválida. Tente novamente.")
+
+            qtde_str = entry_qtde.get()
+            
+            if not qtde_str.isdigit() or int(qtde_str) <= 0:
+                messagebox.showerror("Erro", "Quantidade inválida! Insira um número inteiro positivo.")
+                return
+
+            qtde = int(qtde_str)
+
+            livros_vendidos.append({'ISBN': isbn, 'Qtde': qtde})
+            break
+
+        if livros_vendidos:
+            registrar_venda(connection, id_cliente, livros_vendidos)
+            messagebox.showinfo("Sucesso", "Venda registrada com sucesso!")
+        else:
+            messagebox.showwarning("Atenção", "Nenhum livro foi registrado.")
+
+    registrar_venda_window = tk.Toplevel()
+    registrar_venda_window.title("Registrar Venda")
+    registrar_venda_window.geometry("400x300")
+
+    tk.Label(registrar_venda_window, text="ID do Cliente").grid(row=0, column=0, sticky="w", padx=10, pady=5)
+    entry_id_cliente = tk.Entry(registrar_venda_window)
+    entry_id_cliente.grid(row=0, column=1, padx=10, pady=5)
+
+    tk.Label(registrar_venda_window, text="ISBN do Livro").grid(row=1, column=0, sticky="w", padx=10, pady=5)
+    entry_isbn = tk.Entry(registrar_venda_window)
+    entry_isbn.grid(row=1, column=1, padx=10, pady=5)
+
+    tk.Label(registrar_venda_window, text="Quantidade").grid(row=2, column=0, sticky="w", padx=10, pady=5)
+    entry_qtde = tk.Entry(registrar_venda_window)
+    entry_qtde.grid(row=2, column=1, padx=10, pady=5)
+
+    ttk.Button(registrar_venda_window, text="Registrar Venda", command=salvar_venda).grid(row=3, column=0, columnspan=2, pady=15)
+    tk.Label(registrar_venda_window, text="Digite ISBN do livro e Quantidade. Digite 0 para finalizar.").grid(row=4, column=0, columnspan=2, pady=10)
+
+
+def historico_vendas_gui(connection):
+    vendas = historico_vendas(connection)
+    
+    if not vendas:
+        print("Nenhuma venda para exibir.")
+        return
+
+    vendas_window = tk.Toplevel()
+    vendas_window.title("Histórico de Vendas")
+    vendas_window.geometry("400x300")
+
+    canvas = tk.Canvas(vendas_window)
+    canvas.grid(row=0, column=0, sticky="nsew")
+
+    scrollbar = tk.Scrollbar(vendas_window, orient="vertical", command=canvas.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
+    
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    frame = tk.Frame(canvas)
+    canvas.create_window((0, 0), window=frame, anchor="nw")
+
+    for index, venda in enumerate(vendas):
+        id_venda, data_venda, valor_total, nome_cliente, livro_titulo, quantidade = venda
+        venda_frame = tk.Frame(frame)
+        venda_frame.grid(row=index, column=0, padx=10, pady=10, sticky="w")
+
+        title_label = tk.Label(venda_frame, text=f"Venda {index + 1}")
+        title_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
+        
+        tk.Label(venda_frame, text=f"Venda ID: {id_venda}").grid(row=1, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(venda_frame, text=f"Cliente: {nome_cliente}").grid(row=2, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(venda_frame, text=f"Data: {data_venda}").grid(row=3, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(venda_frame, text=f"Valor Total: R${valor_total:.2f}").grid(row=4, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(venda_frame, text=f"Livro Comprado: {livro_titulo}").grid(row=5, column=0, sticky="w", padx=10, pady=5)
+        tk.Label(venda_frame, text=f"Quantidade: {quantidade}").grid(row=6, column=0, sticky="w", padx=10, pady=5)
+
+        separator = tk.Label(venda_frame, text="-"*40)
+        separator.grid(row=7, column=0, sticky="w", padx=10, pady=5)
+
+    frame.update_idletasks()  
+    canvas.config(scrollregion=canvas.bbox("all"))
+
+    vendas_window.grid_rowconfigure(0, weight=1)
+    vendas_window.grid_columnconfigure(0, weight=1)
+
+def main_menu():
+    root = tk.Tk()
+    root.title("Sistema de Livraria")
+    root.geometry("400x500")
+
+    configure_style() 
+
+    ttk.Label(root, text="Livraria", font=('Arial', 16)).pack(pady=10)
+    ttk.Button(root, text="Adicionar Livro", command=adicionar_livro_gui).pack(pady=10, fill="x")
+    ttk.Button(root, text="Visualizar Livros", command=visualizar_livros_gui).pack(pady=10, fill="x")
+    ttk.Button(root, text="Adicionar Cliente", command=adicionar_cliente_gui).pack(pady=10, fill="x")
+    ttk.Button(root, text="Visualizar Clientes", command=visualizar_clientes_gui).pack(pady=10, fill="x")
+    ttk.Button(root, text="Registrar Venda", command=lambda: registrar_venda_gui(connection)).pack(pady=10, fill="x")
+    ttk.Button(root, text="Histórico de Vendas", command=lambda: historico_vendas_gui(connection)).pack(pady=10, fill="x")
+
+    root.mainloop()
+
 
 if __name__ == "__main__":
-    menu()
+    create_cliente_table(connection)
+    create_livro_table(connection)
+    create_venda_table(connection)
+    create_item_venda_table(connection)
+
+    main_menu()
