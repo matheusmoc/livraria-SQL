@@ -46,48 +46,38 @@ def update_stock(cursor, isbn, qtde):
     cursor.execute(query_check_stock, (isbn,))
     result = cursor.fetchone()
 
-    if result:
-        current_stock = result[0]
-        print(f"Current stock for ISBN {isbn}: {current_stock}")
-        if current_stock >= qtde:
-            query_update_stock = "UPDATE Livro SET Qtde_Estoque = Qtde_Estoque - %s WHERE ISBN = %s"
-            cursor.execute(query_update_stock, (qtde, isbn))
-            connection.commit()
-            print(f"Updated stock for ISBN {isbn}: {current_stock - qtde}")
-        else:
-            print(f"Erro: Estoque insuficiente para o ISBN {isbn}.")
-            return False
-    else:
-        print(f"Erro: ISBN {isbn} não encontrado na base de dados.")
+    if not result or result[0] < qtde:
+        print(f"Erro: Estoque insuficiente ou ISBN {isbn} não encontrado.")
         return False
+
+    print(f"Estoque suficiente para o ISBN {isbn}.")
     return True
 
 def insert_sale_items(cursor, id_venda, livros_vendidos):
-
     for livro in livros_vendidos:
-        isbn = livro['ISBN']
-        qtde = livro['Qtde']
-        
+        isbn, qtde = livro['ISBN'], livro['Qtde']
         preco_unitario = fetch_book_price(cursor, isbn)
-        if preco_unitario is not None:
-            if update_stock(cursor, isbn, qtde):  
-                query = """
-                INSERT INTO Item_Venda (ID_Venda, ISBN_Livro, Qtde, Preco_Unitario)
-                VALUES (%s, %s, %s, %s)
-                """
-                cursor.execute(query, (id_venda, isbn, qtde, preco_unitario))
-            else:
-                print(f"Erro: Não foi possível registrar a venda para o ISBN {isbn} devido a estoque insuficiente.")
-        else:
-            print(f"Erro: ISBN {isbn} não encontrado na base de dados.")
 
+        if preco_unitario is None:
+            print(f"Erro: ISBN {isbn} não encontrado na base de dados.")
+            continue
+
+        if not update_stock(cursor, isbn, qtde):
+            print(f"Erro: Não foi possível registrar a venda para o ISBN {isbn} devido a estoque insuficiente.")
+            continue
+
+        query = """
+        INSERT INTO Item_Venda (ID_Venda, ISBN_Livro, Qtde, Preco_Unitario)
+        VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(query, (id_venda, isbn, qtde, preco_unitario))
 
 def registrar_venda(connection, id_cliente, livros_vendidos):
     try:
         cursor = connection.cursor()
         valor_total = calculate_total_value(cursor, livros_vendidos)
 
-        #create_trigger_stock(cursor)
+        create_trigger_stock(cursor)
         
         if valor_total is None:
             return  
