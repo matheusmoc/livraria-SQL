@@ -35,7 +35,7 @@ def menu():
             case "2":
                 visualizar_livros()
             case "3":
-                id_livro = int(input("Digite o ID do livro a ser atualizado: "))
+                id_livro = int(input("Digite o ISNB do livro a ser deletado: "))
                 novo_titulo = input("Novo título: ")
                 novo_autor = input("Novo autor: ")
                 nova_editora = input("Nova editora: ")

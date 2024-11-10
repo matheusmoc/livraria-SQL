@@ -43,7 +43,7 @@ def atualizar_livro(id_livro, novo_titulo, novo_autor, nova_editora, novo_genero
         query = """
         UPDATE Livro
         SET Titulo = %s, Autor = %s, Editora = %s, Genero = %s, Preco = %s, Qtde_Estoque = %s, Data_Publicacao = %s
-        WHERE ID_Livro = %s
+        WHERE ISBN = %s
         """
         cursor.execute(query, (novo_titulo, novo_autor, nova_editora, novo_genero, novo_preco, nova_qtde_estoque, nova_data_publicacao, id_livro))
         connection.commit()
