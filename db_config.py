@@ -20,7 +20,7 @@ def create_livro_table(connection):
     try:
         cursor = connection.cursor()
         create_table_query = '''
-            CREATE TABLE IF NOT EXISTS livro (
+            CREATE TABLE IF NOT EXISTS Livro (
                 ISBN VARCHAR(20) PRIMARY KEY,
                 Titulo VARCHAR(50) NOT NULL,
                 Autor VARCHAR(60) NOT NULL,
@@ -34,7 +34,7 @@ def create_livro_table(connection):
         cursor.execute(create_table_query)
         print("Tabela 'livro' verificada/criada com sucesso.")
     except Error as e:
-        print(f"Erro ao criar a tabela 'livro': {e}")
+        print(f"Erro ao criar a tabela 'Livro': {e}")
     finally:
         cursor.close()
 
@@ -90,7 +90,7 @@ def create_item_venda_table(connection):
                 Qtde INT NOT NULL,
                 Preco_Unitario DECIMAL(5,2) NOT NULL,
                 FOREIGN KEY (ID_Venda) REFERENCES Venda(ID_Venda),
-                FOREIGN KEY (ISBN_Livro) REFERENCES livro(ISBN)
+                FOREIGN KEY (ISBN_Livro) REFERENCES Livro(ISBN)
             )
         '''
         cursor.execute(create_table_query)

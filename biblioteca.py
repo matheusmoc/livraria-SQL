@@ -295,6 +295,7 @@ def registrar_venda_gui(connection):
     tk.Label(registrar_venda_window, text="Selecione o Cliente").grid(row=0, column=0, sticky="w", padx=10, pady=5)
     combo_clientes = ttk.Combobox(registrar_venda_window, values=list(clientes_dict.keys()), state="readonly")
     combo_clientes.grid(row=0, column=1, padx=10, pady=5)
+    combo_clientes.update_idletasks() 
 
     tk.Label(registrar_venda_window, text="ISBN do Livro").grid(row=1, column=0, sticky="w", padx=10, pady=5)
     entry_isbn = tk.Entry(registrar_venda_window)
@@ -309,10 +310,6 @@ def registrar_venda_gui(connection):
 
 def historico_vendas_gui(connection):
     vendas = historico_vendas(connection)
-    
-    if not vendas:
-        print("Nenhuma venda para exibir.")
-        return
 
     vendas_window = tk.Toplevel()
     vendas_window.title("Histórico de Vendas")

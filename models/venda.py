@@ -110,7 +110,7 @@ def historico_vendas(connection):
         FROM Venda v
         JOIN Cliente c ON v.ID_Cliente = c.Id
         JOIN Item_Venda iv ON v.ID_Venda = iv.ID_Venda
-        JOIN livro l ON iv.ISBN_Livro = l.ISBN
+        JOIN Livro l ON iv.ISBN_Livro = l.ISBN
         ORDER BY v.Data_Venda DESC
         """
         cursor.execute(query)
